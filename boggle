@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """
+A Python implementation of the board game [Boggle](https://en.wikipedia.org/wiki/Boggle).
+
 Author:  Ian Fisher (iafisher@protonmail.com)
 Version: December 2019
 """
