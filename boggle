@@ -20,6 +20,7 @@ import unittest
 DICTIONARY = "words.txt"
 GAME_DURATION_IN_SECS = 3*60
 BOARD_SIDE_LENGTH = 4
+MIN_WORD_LENGTH = 3
 
 
 def main():
@@ -27,6 +28,9 @@ def main():
     parser.add_argument(
         "--duration", type=int, default=GAME_DURATION_IN_SECS,
         help="Duration of the game, in seconds")
+    parser.add_argument(
+        "--min", type=int, default=MIN_WORD_LENGTH,
+        help="Minimum length for a word to count.")
     parser.add_argument(
         "--size", type=int, default=BOARD_SIDE_LENGTH,
         help="Number of letters per side of board")
@@ -72,6 +76,10 @@ def main():
             if response in your_words:
                 print("You already said that.")
             else:
+                if len(response) < args.min:
+                    print(f"Too short. (minimum length: {args.min})")
+                    continue
+
                 if not board.check(response):
                     print("Not on the board.")
                     continue
@@ -82,7 +90,7 @@ def main():
 
                 your_words.add(response)
 
-    all_possible_words = board.all_words(dct)
+    all_possible_words = board.all_words(dct, min_length=args.min)
     best_possible_score = sum(map(score, all_possible_words))
     your_score = sum(map(score, your_words))
     perc = your_score / best_possible_score
@@ -154,28 +162,31 @@ class Board:
 
         return False
 
-    def all_words(self, dct):
+    def all_words(self, dct, *, min_length=MIN_WORD_LENGTH):
         """
         Return all words in the dictionary `dct` that can be legally formed on the
-        board.
+        board and are at least `min_length` characters in length.
         """
         words = set()
         for i in range(self.size * self.size):
             letter = self.letters[i]
-            words |= set(self._all_words_helper(dct, letter, i, frozenset([i])))
+            words |= set(
+                self._all_words_helper(dct, letter, i, frozenset([i]), min_length)
+            )
         return words
 
 
-    def _all_words_helper(self, dct, word, last_index, already_used):
+    def _all_words_helper(self, dct, word, last_index, already_used, min_length):
         """
         Yield every word beginning with `word` that can be made starting at `last_index`
-        without using any indices in `already_used`.
+        without using any indices in `already_used`, and that is at least `min_length`
+        characters in length.
         """
         dct_index = bisect.bisect_left(dct, word)
         if dct_index == len(dct):
             return
 
-        if dct[dct_index] == word and len(word) >= 3:
+        if dct[dct_index] == word and len(word) >= min_length:
             yield word
 
         if not dct[dct_index].startswith(word):
@@ -189,7 +200,9 @@ class Board:
 
             word2 = word + self.letters[adjacent_index]
             already_used2 = already_used | {adjacent_index}
-            yield from self._all_words_helper(dct, word2, adjacent_index, already_used2)
+            yield from self._all_words_helper(
+                dct, word2, adjacent_index, already_used2, min_length,
+            )
 
     def adjacent(self, index):
         """Yield the indices adjacent to `index` on the board."""
