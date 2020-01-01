@@ -33,6 +33,14 @@ def main():
     parser.add_argument("--words", default=DICTIONARY, help="Path to dictionary file.")
     args = parser.parse_args()
 
+    if args.duration <= 0:
+        sys.stderr.write("Error: --duration must be a positive integer.\n")
+        sys.exit(1)
+
+    if args.size < 3:
+        sys.stderr.write("Error: --size must be at least 3.\n")
+        sys.exit(1)
+
     dct = open_dictionary(args.words)
     board = Board(args.size)
     board.display()
