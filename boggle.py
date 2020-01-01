@@ -2,6 +2,8 @@
 import bisect
 import random
 import readline
+import shutil
+import textwrap
 import time
 import unittest
 
@@ -57,21 +59,24 @@ def main():
     best_possible_score = score(all_possible_words)
     your_score = score(your_words)
     perc = your_score / best_possible_score
+    missed = sorted(all_possible_words - your_words)
 
     print()
     print(f"Your score:         {your_score}")
     print(f"Max possible score: {best_possible_score}")
     print(f"Efficiency:         {perc:.1%}")
+    print()
+    width = shutil.get_terminal_size()[0]
+    print(textwrap.fill("MISSED: " + ", ".join(missed), width=width))
 
 
-# TODO: 'Q' and 'U' should be grouped together.
 LETTERS = (
-    ("a" * 9) + ("b" * 2) + ("c" * 2) + ("d" * 4) + ("e" * 12) +
-    ("f" * 2) + ("g" * 3) + ("h" * 2) + ("i" * 9) + ("j" * 1) +
-    ("k" * 1) + ("l" * 4) + ("m" * 2) + ("n" * 6) + ("o" * 8) +
-    ("p" * 2) + ("q" * 1) + ("r" * 6) + ("s" * 4) + ("t" * 6) +
-    ("u" * 4) + ("v" * 2) + ("w" * 2) + ("x" * 1) + ("y" * 2) +
-    ("z" * 1)
+    (["a"] * 9) + (["b"] * 2)  + (["c"] * 2) + (["d"] * 4) + (["e"] * 12) +
+    (["f"] * 2) + (["g"] * 3)  + (["h"] * 2) + (["i"] * 9) + (["j"] * 1) +
+    (["k"] * 1) + (["l"] * 4)  + (["m"] * 2) + (["n"] * 6) + (["o"] * 8) +
+    (["p"] * 2) + (["qu"] * 2) + (["r"] * 6) + (["s"] * 4) + (["t"] * 6) +
+    (["u"] * 4) + (["v"] * 2)  + (["w"] * 2) + (["x"] * 1) + (["y"] * 2) +
+    (["z"] * 1)
 )
 def make_board():
     return random.sample(LETTERS, BOARD_SIDE_LENGTH * BOARD_SIDE_LENGTH)
@@ -80,9 +85,13 @@ def make_board():
 def print_board(board):
     print()
     for i in range(BOARD_SIDE_LENGTH):
+        print("  ", end="")
         for j in range(BOARD_SIDE_LENGTH):
             letter = board[i*BOARD_SIDE_LENGTH+j].upper()
-            print("  " + letter, end="")
+            if len(letter) == 2:
+                print(letter + " ", end="")
+            else:
+                print(letter + "  ", end="")
         print()
     print()
 
@@ -138,11 +147,16 @@ def check_dictionary(dct, word):
 
 
 def check_board(board, word):
-    index = find(board, word[0])
+    if word.startswith("qu"):
+        first, rest = word[:2], word[2:]
+    else:
+        first, rest = word[0], word[1:]
+
+    index = find(board, first)
     while index != -1:
-        if can_spell(board, word[1:], index, frozenset([index])):
+        if can_spell(board, rest, index, frozenset([index])):
             return True
-        index = find(board, word[0], index+1)
+        index = find(board, first, index+1)
 
     return False
 
