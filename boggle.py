@@ -258,21 +258,20 @@ class BoggleTest(unittest.TestCase):
         # L T A R
         # N E L K
         # T S I B
-        board = list("EZOALTARNELKTSIB")
-        self.assertTrue(check_board(board, "A"))
-        self.assertTrue(check_board(board, "TAR"))
-        self.assertTrue(check_board(board, "SENT"))
-        self.assertTrue(check_board(board, "LISTEN"))
-        self.assertTrue(check_board(board, "RATES"))
-        self.assertFalse(check_board(board, "TORE"))
-        self.assertFalse(check_board(board, "QUEST"))
+        board = list("ezoaltarnelktsib")
+        self.assertTrue(check_board(board, "a"))
+        self.assertTrue(check_board(board, "tar"))
+        self.assertTrue(check_board(board, "sent"))
+        self.assertTrue(check_board(board, "listen"))
+        self.assertTrue(check_board(board, "rates"))
+        self.assertFalse(check_board(board, "tore"))
+        self.assertFalse(check_board(board, "quest"))
         # Cannot use the same 'T' twice.
         self.assertFalse(check_board(board, "TAT"))
 
     def test_check_dictionary(self):
         words = open_dictionary()
         self.assertTrue(check_dictionary(words, "mat"))
-        self.assertTrue(check_dictionary(words, "MAT"))
         self.assertFalse(check_dictionary(words, "jkldfalkb"))
 
     def test_check_board_regressions(self):
@@ -280,7 +279,7 @@ class BoggleTest(unittest.TestCase):
         # E E Q S
         # R Y N H
         # O P K R
-        board = list("UNENEEQSRYNHOPKR")
+        board = list("uneneeqsrynhopkr")
         self.assertTrue(check_board(board, "pore"))
 
 
