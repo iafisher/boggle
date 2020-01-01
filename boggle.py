@@ -115,7 +115,7 @@ def score(words):
 def all_words(dct, board):
     words = set()
     for i in range(BOARD_SIDE_LENGTH * BOARD_SIDE_LENGTH):
-        words |= set(all_words_search(dct, board, i, board[i], frozenset()))
+        words |= set(all_words_search(dct, board, i, board[i], frozenset([i])))
     return words
 
 
@@ -169,8 +169,9 @@ def can_spell(board, word, last_index, already_used):
         if index in already_used:
             continue
 
-        if board[index] == word[0]:
-            result = can_spell(board, word[1:], index, already_used | {index})
+        letter = board[index]
+        if word.startswith(letter):
+            result = can_spell(board, word[len(letter):], index, already_used | {index})
             if result:
                 return True
 
@@ -241,6 +242,10 @@ def time_add(t, secs):
 class BoggleTest(unittest.TestCase):
     """Run with `python3 -m unittest boggle.py`."""
 
+    @classmethod
+    def setUpClass(cls):
+        cls.dct = open_dictionary()
+
     def test_adjacent(self):
         #  0   1   2   3
         #  4   5   6   7
@@ -270,9 +275,8 @@ class BoggleTest(unittest.TestCase):
         self.assertFalse(check_board(board, "TAT"))
 
     def test_check_dictionary(self):
-        words = open_dictionary()
-        self.assertTrue(check_dictionary(words, "mat"))
-        self.assertFalse(check_dictionary(words, "jkldfalkb"))
+        self.assertTrue(check_dictionary(self.dct, "mat"))
+        self.assertFalse(check_dictionary(self.dct, "jkldfalkb"))
 
     def test_check_board_regressions(self):
         # U N E N
@@ -281,6 +285,24 @@ class BoggleTest(unittest.TestCase):
         # O P K R
         board = list("uneneeqsrynhopkr")
         self.assertTrue(check_board(board, "pore"))
+
+        # L  N  I  G
+        # O  K  QU I
+        # I  E  N  H
+        # B  N  U  S
+        board = list("lnigok") + ["qu"] + list("iienhbnus")
+        self.assertTrue(check_board(board, "unique"))
+        self.assertFalse(check_board(board, "bib"))
+
+    def test_all_words(self):
+        # L  N  I  G
+        # O  K  QU I
+        # I  E  N  H
+        # B  N  U  S
+        board = list("lnigok") + ["qu"] + list("iienhbnus")
+        words = all_words(self.dct, board)
+        self.assertIn("unique", words)
+        self.assertNotIn("bib", words)
 
 
 if __name__ == "__main__":
