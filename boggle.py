@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import bisect
 import random
+import readline
 import time
 import unittest
 
@@ -11,22 +12,26 @@ BOARD_SIDE_LENGTH = 4
 
 
 def main():
-    words = open_dictionary()
+    dct = open_dictionary()
     board = make_board()
     print_board(board)
+    print("Enter !p to print the board again.")
+    print()
     start = now()
     end = time_add(start, GAME_DURATION_IN_SECS)
-    guesses = set()
+    your_words = set()
     while True:
         minutes, seconds = divmod(time_diff(end, now()), 60)
         minutes = int(minutes)
         seconds = int(seconds)
 
         try:
-            response = input(f"({minutes}:{seconds:0>2}) > ").strip()
+            response = input(f"({minutes}:{seconds:0>2}) > ")
         except (KeyboardInterrupt, EOFError):
             print()
             break
+        else:
+            response = response.strip().lower()
 
         if now() >= end:
             print("Time is up.")
@@ -35,28 +40,38 @@ def main():
         if response == "!p":
             print_board(board)
         elif response:
-            if response in guesses:
+            if response in your_words:
                 print("You already said that.")
             else:
                 if not check_board(board, response):
                     print("Not on the board.")
                     continue
 
-                if not check_dictionary(words, response):
+                if not check_dictionary(dct, response):
                     print("Not in dictionary.")
                     continue
 
-                guesses.add(response)
+                your_words.add(response)
+
+    all_possible_words = all_words(dct, board)
+    best_possible_score = score(all_possible_words)
+    your_score = score(your_words)
+    perc = your_score / best_possible_score
+
+    print()
+    print(f"Your score:         {your_score}")
+    print(f"Max possible score: {best_possible_score}")
+    print(f"Efficiency:         {perc:.1%}")
 
 
 # TODO: 'Q' and 'U' should be grouped together.
 LETTERS = (
-    ("A" * 9) + ("B" * 2) + ("C" * 2) + ("D" * 4) + ("E" * 12) +
-    ("F" * 2) + ("G" * 3) + ("H" * 2) + ("I" * 9) + ("J" * 1) +
-    ("K" * 1) + ("L" * 4) + ("M" * 2) + ("N" * 6) + ("O" * 8) +
-    ("P" * 2) + ("Q" * 1) + ("R" * 6) + ("S" * 4) + ("T" * 6) +
-    ("U" * 4) + ("V" * 2) + ("W" * 2) + ("X" * 1) + ("Y" * 2) +
-    ("Z" * 1)
+    ("a" * 9) + ("b" * 2) + ("c" * 2) + ("d" * 4) + ("e" * 12) +
+    ("f" * 2) + ("g" * 3) + ("h" * 2) + ("i" * 9) + ("j" * 1) +
+    ("k" * 1) + ("l" * 4) + ("m" * 2) + ("n" * 6) + ("o" * 8) +
+    ("p" * 2) + ("q" * 1) + ("r" * 6) + ("s" * 4) + ("t" * 6) +
+    ("u" * 4) + ("v" * 2) + ("w" * 2) + ("x" * 1) + ("y" * 2) +
+    ("z" * 1)
 )
 def make_board():
     return random.sample(LETTERS, BOARD_SIDE_LENGTH * BOARD_SIDE_LENGTH)
@@ -66,19 +81,63 @@ def print_board(board):
     print()
     for i in range(BOARD_SIDE_LENGTH):
         for j in range(BOARD_SIDE_LENGTH):
-            print(" " + board[i*BOARD_SIDE_LENGTH+j], end="")
+            letter = board[i*BOARD_SIDE_LENGTH+j].upper()
+            print("  " + letter, end="")
         print()
     print()
 
 
-def check_dictionary(words, word):
-    word = word.lower()
-    index = bisect.bisect_left(words, word)
-    return index < len(words) and words[index] == word
+def score(words):
+    score = 0
+    for word in words:
+        if len(word) == 3 or len(word) == 4:
+            score += 1
+        elif len(word) == 5:
+            score += 2
+        elif len(word) == 6:
+            score += 3
+        elif len(word) == 7:
+            score += 5
+        elif len(word) >= 8:
+            score += 11
+    return score
+
+
+def all_words(dct, board):
+    words = set()
+    for i in range(BOARD_SIDE_LENGTH * BOARD_SIDE_LENGTH):
+        words |= set(all_words_search(dct, board, i, board[i], frozenset()))
+    return words
+
+
+def all_words_search(dct, board, index, so_far, already_used):
+    dct_index = bisect.bisect_left(dct, so_far)
+    if dct_index == len(dct):
+        return
+
+    if dct[dct_index] == so_far and len(so_far) >= 3:
+        yield so_far
+
+    # No word in the dictionay starts with this sequence, so we can prematurely
+    # terminate.
+    if not dct[dct_index].startswith(so_far):
+        return
+
+    for adjacent_index in adjacent(index):
+        if adjacent_index in already_used:
+            continue
+
+        so_far2 = so_far + board[adjacent_index]
+        already_used2 = already_used | {adjacent_index}
+        yield from all_words_search(dct, board, adjacent_index, so_far2, already_used2)
+
+
+def check_dictionary(dct, word):
+    index = bisect.bisect_left(dct, word)
+    return index < len(dct) and dct[index] == word
 
 
 def check_board(board, word):
-    word = word.upper()
     index = find(board, word[0])
     while index != -1:
         if can_spell(board, word[1:], index, frozenset([index])):
