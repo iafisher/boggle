@@ -19,7 +19,8 @@ import unittest
 
 
 DICTIONARY_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "words")
-DICTIONARY = os.path.join(DICTIONARY_FOLDER, "en.txt")
+DICTIONARY_EN = os.path.join(DICTIONARY_FOLDER, "en.txt")
+DICTIONARY_RU = os.path.join(DICTIONARY_FOLDER, "ru.txt")
 GAME_DURATION_IN_SECS = 3*60
 BOARD_SIDE_LENGTH = 4
 MIN_WORD_LENGTH = 3
@@ -34,9 +35,12 @@ def main():
         "--min", type=int, default=MIN_WORD_LENGTH,
         help="Minimum length for a word to count.")
     parser.add_argument(
+        "--russian", action="store_true",
+        help="Use the Russian alphabet for the board.")
+    parser.add_argument(
         "--size", type=int, default=BOARD_SIDE_LENGTH,
         help="Number of letters per side of board")
-    parser.add_argument("--words", default=DICTIONARY, help="Path to dictionary file.")
+    parser.add_argument("--words", default="", help="Path to dictionary file.")
     args = parser.parse_args()
 
     if args.duration <= 0:
@@ -47,8 +51,14 @@ def main():
         sys.stderr.write("Error: --size must be at least 3.\n")
         sys.exit(1)
 
+    if not args.words:
+        if args.russian:
+            args.words = DICTIONARY_RU
+        else:
+            args.words = DICTIONARY_EN
+
     dct = open_dictionary(args.words)
-    board = Board(args.size)
+    board = Board(size=args.size, russian=args.russian)
     board.display()
     print("Enter !p to print the board again.")
     print()
@@ -117,19 +127,32 @@ class Board:
         (["z"] * 1)
     )
 
-    def __init__(self, size=BOARD_SIDE_LENGTH):
-        self.letters = random.sample(self.LETTERS, size * size)
+    # From https://en.wikipedia.org/wiki/Scrabble_letter_distributions#Russian
+    LETTERS_RU = (
+        (["а"] * 8) + (["б"] * 2) + (["в"] * 4) + (["г"] * 2) + (["д"] * 4) +
+        (["е"] * 8) + (["ё"] * 1) + (["ж"] * 1) + (["з"] * 2) + (["и"] * 5) +
+        (["й"] * 1) + (["к"] * 4) + (["л"] * 4) + (["м"] * 3) + (["н"] * 5) +
+        (["о"] * 10) + (["п"] * 4) + (["р"] * 5) + (["с"] * 5) + (["т"] * 5) +
+        (["у"] * 4) + (["ф"] * 1) + (["х"] * 1) + (["ц"] * 1) + (["ч"] * 1) +
+        (["ш"] * 1) + (["щ"] * 1) + (["ъ"] * 1) + (["ы"] * 2) + (["ь"] * 2) +
+        (["э"] * 1) + (["ю"] * 1) + (["я"] * 2)
+    )
+
+    def __init__(self, *, size=BOARD_SIDE_LENGTH, russian=False):
+        self.english = not russian
+        letter_set = self.LETTERS if self.english else self.LETTERS_RU
+        self.letters = random.sample(letter_set, size * size)
         self.size = size
 
     @classmethod
     def from_list(cls, letters):
         size = int(math.sqrt(len(letters)))
-        self = cls(size)
+        self = cls(size=size)
         self.letters = letters
         return self
 
     def check(self, word):
-        if word.startswith("qu"):
+        if self.english and word.startswith("qu"):
             first, rest = word[:2], word[2:]
         else:
             first, rest = word[0], word[1:]
@@ -311,14 +334,14 @@ class BoggleTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.dct = open_dictionary(DICTIONARY)
+        cls.dct = open_dictionary(DICTIONARY_EN)
 
     def test_adjacent(self):
         #  0   1   2   3
         #  4   5   6   7
         #  8   9  10  11
         # 12  13  14  15
-        board = Board(4)
+        board = Board(size=4)
         self.assertEqual(set(board.adjacent(0)), {1, 4, 5})
         self.assertEqual(set(board.adjacent(1)), {0, 2, 4, 5, 6})
         self.assertEqual(set(board.adjacent(4)), {0, 1, 5, 8, 9})
