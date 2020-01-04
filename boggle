@@ -59,12 +59,16 @@ def main():
 
     dct = open_dictionary(args.words)
     board = Board(size=args.size, russian=args.russian)
+    all_possible_words = board.all_words(dct, min_length=args.min)
+    best_possible_score = sum(map(score, all_possible_words))
+
     board.display()
     print("Enter !p to print the board again.")
     print()
     start = now()
     end = time_add(start, args.duration)
     your_words = set()
+    your_score = 0
     while True:
         minutes, seconds = divmod(time_diff(end, now()), 60)
         minutes = int(minutes)
@@ -84,6 +88,13 @@ def main():
 
         if response == "!p":
             board.display()
+        elif response == "!s":
+            perc = your_score / best_possible_score
+            print(f"{your_score} / {best_possible_score} ({perc:.1%})")
+        elif response == "!ps" or response == "!sp":
+            board.display()
+            perc = your_score / best_possible_score
+            print(f"{your_score} / {best_possible_score} ({perc:.1%})")
         elif response:
             if response in your_words:
                 print("You already said that.")
@@ -101,13 +112,9 @@ def main():
                     continue
 
                 your_words.add(response)
+                your_score += score(response)
 
-    all_possible_words = board.all_words(dct, min_length=args.min)
-    best_possible_score = sum(map(score, all_possible_words))
-    your_score = sum(map(score, your_words))
-    perc = your_score / best_possible_score
     missed = sorted(all_possible_words - your_words)
-
     print()
     print(f"Your score:         {your_score}")
     print(f"Max possible score: {best_possible_score}")
