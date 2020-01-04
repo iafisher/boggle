@@ -8,6 +8,7 @@ Version: December 2019
 import argparse
 import bisect
 import math
+import os
 import random
 import readline
 import shutil
@@ -17,7 +18,8 @@ import time
 import unittest
 
 
-DICTIONARY = "words.txt"
+DICTIONARY_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "words")
+DICTIONARY = os.path.join(DICTIONARY_FOLDER, "en.txt")
 GAME_DURATION_IN_SECS = 3*60
 BOARD_SIDE_LENGTH = 4
 MIN_WORD_LENGTH = 3
