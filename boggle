@@ -115,6 +115,7 @@ def main():
                 your_score += score(response)
 
     missed = sorted(all_possible_words - your_words)
+    perc = your_score / best_possible_score
     print()
     print(f"Your score:         {your_score}")
     print(f"Max possible score: {best_possible_score}")
