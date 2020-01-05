@@ -1177,7 +1177,6 @@ agronomy
 aground
 ague
 ah
-aha
 ahead
 ahem
 ahoy
@@ -3730,7 +3729,6 @@ baggy
 bagpipe
 bagpipes
 bags
-bah
 bail
 bailed
 bailiff
@@ -13011,7 +13009,6 @@ cudgeling
 cudgelled
 cudgelling
 cudgels
-cuds
 cue
 cued
 cueing
@@ -31239,7 +31236,6 @@ lazing
 lazy
 lazybones
 lazying
-lea
 leach
 leached
 leaches
@@ -31303,7 +31299,6 @@ learners
 learning
 learns
 learnt
-leas
 lease
 leased
 leasehold
@@ -31365,7 +31360,6 @@ leeriest
 leering
 leers
 leery
-lees
 leeward
 leewards
 leeway
@@ -34258,7 +34252,6 @@ mike
 miked
 mikes
 miking
-mil
 milch
 mild
 milder
@@ -34366,7 +34359,6 @@ millstone
 millstones
 milquetoast
 milquetoasts
-mils
 mime
 mimed
 mimeograph
@@ -61682,13 +61674,8 @@ weeping
 weepings
 weeps
 weepy
-weer
-wees
-weest
 weevil
 weevils
-weft
-wefts
 weigh
 weighed
 weighing
