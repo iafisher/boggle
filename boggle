@@ -19,7 +19,7 @@ import unittest
 
 
 DICTIONARY_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "words")
-DICTIONARY_EN = os.path.join(DICTIONARY_FOLDER, "en.txt")
+DICTIONARY_EN = os.path.join(DICTIONARY_FOLDER, "en_abridged.txt")
 DICTIONARY_RU = os.path.join(DICTIONARY_FOLDER, "ru.txt")
 GAME_DURATION_IN_SECS = 3*60
 BOARD_SIDE_LENGTH = 4
