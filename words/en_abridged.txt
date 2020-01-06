@@ -20200,14 +20200,11 @@ farrowing
 farrows
 farsighted
 farsightedness
-fart
-farted
 farther
 farthest
 farthing
 farthings
 farting
-farts
 fascinate
 fascinated
 fascinates
@@ -41501,10 +41498,6 @@ pool
 pooled
 pooling
 pools
-poop
-pooped
-pooping
-poops
 poor
 poorer
 poorest
@@ -49662,7 +49655,6 @@ sharpness
 sharps
 sharpshooter
 sharpshooters
-shat
 shatter
 shattered
 shattering
@@ -56846,7 +56838,6 @@ tiresomeness
 tiring
 tissue
 tissues
-tit
 titan
 titanic
 titanium
@@ -56868,7 +56859,6 @@ titles
 titling
 titmice
 titmouse
-tits
 titter
 tittered
 tittering

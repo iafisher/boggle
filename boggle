@@ -58,9 +58,12 @@ def main():
             args.words = DICTIONARY_EN
 
     dct = open_dictionary(args.words)
-    board = Board(size=args.size, russian=args.russian)
-    all_possible_words = board.all_words(dct, min_length=args.min)
-    best_possible_score = sum(map(score, all_possible_words))
+    best_possible_score = 0
+    while best_possible_score == 0:
+        # Loop until we find a board with at least 1 possible word.
+        board = Board(size=args.size, russian=args.russian)
+        all_possible_words = board.all_words(dct, min_length=args.min)
+        best_possible_score = sum(map(score, all_possible_words))
 
     board.display()
     print("Enter !p to print the board again.")
